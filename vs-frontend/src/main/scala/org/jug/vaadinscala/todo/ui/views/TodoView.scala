@@ -1,10 +1,13 @@
 package org.jug.vaadinscala.todo.ui.views
 
+import com.vaadin.data.util.BeanItemContainer
 import com.vaadin.ui.Alignment
 import com.vaadin.ui.themes.ChameleonTheme
+import org.jug.vaadinscala.todo.Todo
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.vaadin.addons.rinne._
+import org.vaadin.addons.rinne.converters.Converters
 
 @Component
 @Scope("prototype")
@@ -12,6 +15,10 @@ class TodoView extends VVerticalLayout {
   sizeFull()
   margin = true
   spacing = true
+
+  val todoContainer = new BeanItemContainer[Todo](classOf[Todo])
+  todoContainer.addBean(Todo(1, Some("Test")))
+  todoContainer.addBean(Todo(2, Some("Poznan Jug")))
 
   add(
     new VLabel {
@@ -48,6 +55,14 @@ class TodoView extends VVerticalLayout {
   add(
     new VTable {
       sizeFull()
+
+      dataSource = todoContainer
+
+      visibleColumns = Seq("id", "content")
+      columnHeaders = Seq("#", "Todo")
+      setColumnExpandRatio("content", 1)
+
+      setConverter("content", Converters.optionToString)
     },
     ratio = 1
   )
