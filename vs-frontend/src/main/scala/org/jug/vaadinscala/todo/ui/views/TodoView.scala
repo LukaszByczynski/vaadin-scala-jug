@@ -1,7 +1,10 @@
 package org.jug.vaadinscala.todo.ui.views
 
+import javax.annotation.PostConstruct
+import javax.inject.Inject
+
 import com.vaadin.data.util.BeanItemContainer
-import com.vaadin.ui.Alignment
+import com.vaadin.ui.{UI, Alignment}
 import com.vaadin.ui.themes.ChameleonTheme
 import org.jug.vaadinscala.todo.Todo
 import org.springframework.context.annotation.Scope
@@ -12,58 +15,88 @@ import org.vaadin.addons.rinne.converters.Converters
 @Component
 @Scope("prototype")
 class TodoView extends VVerticalLayout {
-  sizeFull()
-  margin = true
-  spacing = true
+
+  @Inject var todoEditorView: TodoEditorView = _
 
   val todoContainer = new BeanItemContainer[Todo](classOf[Todo])
-  todoContainer.addBean(Todo(1, Some("Test")))
-  todoContainer.addBean(Todo(2, Some("Poznan Jug")))
 
-  add(
-    new VLabel {
-      sizeUndefined()
-      value = "Simple Todo Application"
-      styleName = ChameleonTheme.LABEL_H1
-    },
-    alignment = Alignment.BOTTOM_CENTER
-  )
+  var idGen = 1
 
-  componentSet += new VHorizontalLayout {
-    width = 100.percent
+  @PostConstruct
+  def init() {
+    sizeFull()
+    margin = true
     spacing = true
 
     add(
-      new VTextField {
-        width = 90.percent
-        prompt = "Search..."
-        enabled = false
+      new VLabel {
+        sizeUndefined()
+        value = "Simple Todo Application"
+        styleName = ChameleonTheme.LABEL_H1
       },
-      alignment = Alignment.MIDDLE_LEFT,
-      ratio = 1
+      alignment = Alignment.BOTTOM_CENTER
     )
 
+    componentSet += new VHorizontalLayout {
+      width = 100.percent
+      spacing = true
+
+      add(
+        new VTextField {
+          width = 90.percent
+          prompt = "Search..."
+          enabled = false
+        },
+        alignment = Alignment.MIDDLE_LEFT,
+        ratio = 1
+      )
+
+      add(
+        new VButton {
+          caption = "Add TODO"
+          styleName = ChameleonTheme.BUTTON_DEFAULT
+
+          clickListeners += addTodo()
+        },
+        alignment = Alignment.MIDDLE_RIGHT
+      )
+    }
+
     add(
-      new VButton {
-        caption = "Add TODO"
-        styleName = ChameleonTheme.BUTTON_DEFAULT
+      new VTable {
+        sizeFull()
+
+        dataSource = todoContainer
+
+        visibleColumns = Seq("id", "content")
+        columnHeaders = Seq("#", "Todo")
+        setColumnExpandRatio("content", 1)
+
+        setConverter("content", Converters.optionToString)
       },
-      alignment = Alignment.MIDDLE_RIGHT
+      ratio = 1
     )
   }
 
-  add(
-    new VTable {
-      sizeFull()
+  def addTodo(): Unit = {
+    UI.getCurrent.addWindow(
+      new VWindow {
+        width = 50.percent
+        height = 50.percent
+        modal = true
 
-      dataSource = todoContainer
+        caption = "Add Todo"
+        content = todoEditorView
 
-      visibleColumns = Seq("id", "content")
-      columnHeaders = Seq("#", "Todo")
-      setColumnExpandRatio("content", 1)
-
-      setConverter("content", Converters.optionToString)
-    },
-    ratio = 1
-  )
+        todoEditorView.bind(Todo())
+        todoEditorView.onCancelClick = () => { close() }
+        todoEditorView.onSaveClick = (item) => {
+          item.id = idGen
+          idGen += 1
+          todoContainer.addBean(item)
+          close()
+        }
+      }
+    )
+  }
 }
