@@ -1,23 +1,22 @@
 package org.jug.vaadinscala.todo.ui
 
+import javax.inject.Inject
+
 import com.vaadin.annotations.Theme
 import com.vaadin.server.VaadinRequest
 import com.vaadin.spring.annotation.SpringUI
 import com.vaadin.ui.UI
-import org.vaadin.addons.rinne._
+import org.jug.vaadinscala.todo.ui.views.TodoView
+import org.springframework.context.annotation.Lazy
+import org.springframework.stereotype.Component
 
 @SpringUI
 @Theme("chameleon")
 class TodoUI extends UI {
-  override def init(vaadinRequest: VaadinRequest): Unit = {
-    setContent(
-      new VVerticalLayout {
-        sizeFull()
 
-        componentSet += new VLabel {
-          value = "Hello JUG!"
-        }
-      }
-    )
+  @Inject private var todoView: TodoView = _
+
+  override def init(vaadinRequest: VaadinRequest): Unit = {
+    setContent(todoView)
   }
 }
