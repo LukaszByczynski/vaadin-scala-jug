@@ -5,7 +5,7 @@ import javax.inject.Inject
 
 import com.vaadin.data.util.BeanItemContainer
 import com.vaadin.ui.{UI, Alignment}
-import com.vaadin.ui.themes.ChameleonTheme
+import com.vaadin.ui.themes.ValoTheme
 import org.jug.vaadinscala.todo.Todo
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -32,7 +32,7 @@ class TodoView extends VVerticalLayout {
       new VLabel {
         sizeUndefined()
         value = "Simple Todo Application"
-        styleName = ChameleonTheme.LABEL_H1
+        styleName = ValoTheme.LABEL_H1
       },
       alignment = Alignment.BOTTOM_CENTER
     )
@@ -54,7 +54,7 @@ class TodoView extends VVerticalLayout {
       add(
         new VButton {
           caption = "Add TODO"
-          styleName = ChameleonTheme.BUTTON_DEFAULT
+          styleName = ValoTheme.BUTTON_PRIMARY
 
           clickListeners += addTodo()
         },

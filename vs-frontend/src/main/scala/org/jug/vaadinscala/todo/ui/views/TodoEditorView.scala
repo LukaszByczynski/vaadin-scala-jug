@@ -5,7 +5,7 @@ import javax.annotation.PostConstruct
 import com.vaadin.data.fieldgroup.FieldGroup
 import com.vaadin.data.util.BeanItem
 import com.vaadin.ui.Alignment
-import com.vaadin.ui.themes.ChameleonTheme
+import com.vaadin.ui.themes.ValoTheme
 import org.jug.vaadinscala.todo.Todo
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
@@ -54,7 +54,7 @@ class TodoEditorView extends VVerticalLayout {
         add(
           new VButton {
             caption = "Save"
-            styleName = ChameleonTheme.BUTTON_DEFAULT
+            styleName = ValoTheme.BUTTON_PRIMARY
 
             clickListeners += {
               beanItem.foreach(b => onSaveClick(b.getBean))

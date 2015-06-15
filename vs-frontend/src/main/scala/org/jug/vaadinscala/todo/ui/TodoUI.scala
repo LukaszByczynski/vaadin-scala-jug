@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 
 @SpringUI
-@Theme("chameleon")
+@Theme("valo")
 class TodoUI extends UI {
 
   @Inject private var todoView: TodoView = _
