@@ -24,10 +24,28 @@ class TodoView extends VVerticalLayout {
 
   @Inject var todoRepository: TypedActorProxy[TodoRepository] = _
 
-  lazy val remoteTodoContainer = new RemoteTodoContainer(todoRepository) {
+  private val searchField = new VTextField {
+    width = 90.percent
+    prompt = "Search..."
+
+    valueChangeListeners += {
+      remoteTodoContainer.refresh()
+    }
+  }
+
+  lazy val remoteTodoContainer: RemoteTodoContainer = new RemoteTodoContainer(todoRepository) {
     /** Gets ids of the items managed by container */
     override protected def findIds(): Future[Seq[Int]] = {
-      todoRepository().findIds(None)
+      todoRepository().findIds(optimizeSearch(searchField.value))
+    }
+
+    def optimizeSearch(value: Option[String]): Option[String] = value.map(_.trim) match {
+      case Some(text) =>
+        if (text.length > 0)
+          Some(text)
+        else
+          None
+      case _ => None
     }
   }
 
@@ -51,11 +69,7 @@ class TodoView extends VVerticalLayout {
       spacing = true
 
       add(
-        new VTextField {
-          width = 90.percent
-          prompt = "Search..."
-          enabled = false
-        },
+        searchField,
         alignment = Alignment.MIDDLE_LEFT,
         ratio = 1
       )

@@ -227,7 +227,7 @@ abstract class RemoteTodoContainer(source: TypedActorProxy[TodoRepository])
   private def _showBackendFailure(t: Throwable): Unit = {
     val uuid = UUID.randomUUID()
     Notification.show(
-      "The ISM backend services are unavailable right now.\nPlease try again later.",
+      "Backend services are unavailable right now.\nPlease try again later.",
       s"id: $uuid",
       Notification.Type.ERROR_MESSAGE
     )

@@ -35,6 +35,7 @@ class TodoEditorView extends VVerticalLayout {
         sizeFull()
 
         componentSet += new VTextArea {
+          maxLength = 255
           fieldGroup.bind(this, "content")
           sizeFull()
           setConverter(Converters.optionToString)

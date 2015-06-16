@@ -18,10 +18,12 @@ class DBTodoRepository {
     )
   )
 
-  private lazy val _findIdsQuery = Compiled(
-    (filter: Column[Option[String]]) => dbTodos.map(
-      _.id.get
-    )
+  private lazy val _findIdsQuery = Compiled(dbTodos.map(_.id.get))
+
+  private lazy val _findIdsWithFilterQuery = Compiled(
+    (filter: Column[String]) => dbTodos
+      .filter(t => t.content.isEmpty || (t.content like filter))
+      .map(_.id.get)
   )
 
   private lazy val _findByIdsQuery = (ids: Seq[Int]) => dbTodos.filter(_.id inSetBind ids).map(
@@ -60,8 +62,9 @@ class DBTodoRepository {
     ids.map(result.get(_).get).toSeq
   }
 
-  def findIds(filter: Option[String])(implicit session: Session): Seq[Int] = {
-    _findIdsQuery(filter.map(_.trim)).list
+  def findIds(filter: Option[String])(implicit session: Session): Seq[Int] = filter match {
+    case Some(data) => _findIdsWithFilterQuery(s"%${data.trim}%").list
+    case _ => _findIdsQuery.list
   }
 
 }
