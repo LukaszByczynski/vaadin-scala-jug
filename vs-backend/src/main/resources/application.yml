@@ -1,0 +1,15 @@
+spring:
+  # datasource configuration
+  datasource:
+    name: dataSource
+    driverClassName: org.postgresql.Driver
+
+jug:
+  # backend akka stack configuration
+  backend:
+    host: 127.0.0.1
+    port: 9010
+
+logging.level:
+  scala.slick.jdbc.JdbcBackend.statement: DEBUG
+  com.bizbeam.ism: DEBUG

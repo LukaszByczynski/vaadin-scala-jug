@@ -15,6 +15,8 @@ lazy val vs_frontend = (project in file("vs-frontend"))
   .settings(commonSettings)
   .settings(
     libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % "2.11.6",
+
       // akka
       "com.typesafe.akka" %% "akka-actor" % "2.3.9",
       "com.typesafe.akka" %% "akka-kernel" % "2.3.9",
@@ -48,4 +50,28 @@ lazy val vs_frontend = (project in file("vs-frontend"))
   )
   .dependsOn(vs_shared)
 
-lazy val root = (project in file(".")).aggregate(vs_shared, vs_frontend)
+lazy val vs_backend = (project in file("vs-backend"))
+  .settings(commonSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      // akka
+      "com.typesafe.akka" %% "akka-actor" % "2.3.9",
+      "com.typesafe.akka" %% "akka-kernel" % "2.3.9",
+      "com.typesafe.akka" %% "akka-remote" % "2.3.9",
+
+      // spring boot with jdbc
+      "javax.inject" % "javax.inject" % "1",
+      "org.springframework.boot" % "spring-boot-starter" % "1.2.4.RELEASE" exclude(
+        "commons-logging", "commons-logging"
+        ),
+      "org.springframework.boot" % "spring-boot-starter-jdbc" % "1.2.4.RELEASE",
+
+      "com.typesafe.slick" %% "slick" % "2.1.0",
+      "org.postgresql" % "postgresql" % "9.4-1201-jdbc41" exclude(
+        "org.slf4j", "slf4j-simple"
+        )
+    )
+  )
+  .dependsOn(vs_shared)
+
+lazy val root = (project in file(".")).aggregate(vs_shared, vs_frontend, vs_backend)

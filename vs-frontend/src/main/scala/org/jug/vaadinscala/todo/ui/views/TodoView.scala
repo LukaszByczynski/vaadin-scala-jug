@@ -3,14 +3,18 @@ package org.jug.vaadinscala.todo.ui.views
 import javax.annotation.PostConstruct
 import javax.inject.Inject
 
-import com.vaadin.data.util.BeanItemContainer
-import com.vaadin.ui.{UI, Alignment}
 import com.vaadin.ui.themes.ValoTheme
-import org.jug.vaadinscala.todo.Todo
+import com.vaadin.ui.{Alignment, Notification, UI}
+import org.jug.vaadinscala.todo.akka.TypedActorProxy
+import org.jug.vaadinscala.todo.async.Async
+import org.jug.vaadinscala.todo.container.RemoteTodoContainer
+import org.jug.vaadinscala.todo.{Todo, TodoRepository}
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import org.vaadin.addons.rinne._
 import org.vaadin.addons.rinne.converters.Converters
+
+import scala.concurrent.Future
 
 @Component
 @Scope("prototype")
@@ -18,9 +22,14 @@ class TodoView extends VVerticalLayout {
 
   @Inject var todoEditorView: TodoEditorView = _
 
-  val todoContainer = new BeanItemContainer[Todo](classOf[Todo])
+  @Inject var todoRepository: TypedActorProxy[TodoRepository] = _
 
-  var idGen = 1
+  lazy val remoteTodoContainer = new RemoteTodoContainer(todoRepository) {
+    /** Gets ids of the items managed by container */
+    override protected def findIds(): Future[Seq[Int]] = {
+      todoRepository().findIds(None)
+    }
+  }
 
   @PostConstruct
   def init() {
@@ -66,7 +75,7 @@ class TodoView extends VVerticalLayout {
       new VTable {
         sizeFull()
 
-        dataSource = todoContainer
+        dataSource = remoteTodoContainer
 
         visibleColumns = Seq("id", "content")
         columnHeaders = Seq("#", "Todo")
@@ -79,6 +88,7 @@ class TodoView extends VVerticalLayout {
   }
 
   def addTodo(): Unit = {
+    todoEditorView.enabled = true
     UI.getCurrent.addWindow(
       new VWindow {
         width = 50.percent
@@ -89,12 +99,21 @@ class TodoView extends VVerticalLayout {
         content = todoEditorView
 
         todoEditorView.bind(Todo())
-        todoEditorView.onCancelClick = () => { close() }
-        todoEditorView.onSaveClick = (item) => {
-          item.id = idGen
-          idGen += 1
-          todoContainer.addBean(item)
+        todoEditorView.onCancelClick = () => {
           close()
+        }
+        todoEditorView.onSaveClick = (item) => {
+          todoEditorView.enabled = false
+          Async.default(todoRepository().save(item))(
+            success => {
+              close()
+              remoteTodoContainer.refresh()
+            },
+            failure => {
+              Notification.show(failure.toString, Notification.Type.ERROR_MESSAGE)
+              todoEditorView.enabled = true
+            }
+          )
         }
       }
     )

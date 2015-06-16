@@ -2,7 +2,7 @@ package org.jug.vaadinscala.todo.ui
 
 import javax.inject.Inject
 
-import com.vaadin.annotations.Theme
+import com.vaadin.annotations.{Push, Theme}
 import com.vaadin.server.VaadinRequest
 import com.vaadin.spring.annotation.SpringUI
 import com.vaadin.ui.UI
@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 
 @SpringUI
+@Push
 @Theme("valo")
 class TodoUI extends UI {
 

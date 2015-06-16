@@ -78,5 +78,4 @@ class TodoEditorView extends VVerticalLayout {
     beanItem = Some(new BeanItem[Todo](item))
     fieldGroup.setItemDataSource(beanItem.get)
   }
-
 }

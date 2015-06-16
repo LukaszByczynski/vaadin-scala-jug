@@ -1,0 +1,18 @@
+# common server properties
+server:
+  port: 8080
+
+vaadin:
+  servlet:
+    params:
+      # force to close sessions which they are idle
+      closeIdleSessions: true
+
+jug:
+  async:
+    # async request timeout
+    timeout: 10
+  # backend host address configuration
+  backend:
+    host: 127.0.0.1
+    port: 9010
