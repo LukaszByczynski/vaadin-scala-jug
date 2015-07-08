@@ -13,7 +13,18 @@ lazy val vs_shared = (project in file("vs-shared"))
 
 lazy val vs_frontend = (project in file("vs-frontend"))
   .settings(commonSettings)
+  .settings(vaadinSettings)
   .settings(
+    // fix vaadin plugin directory locations
+    vaadinThemesDir <<= sourceDirectory(sd => Seq(sd / "main" / "resources" / "VAADIN" / "themes")),
+    target in compileVaadinThemes := (classDirectory in Compile).value / "VAADIN" / "themes",
+    resourceGenerators in Compile <+= compileVaadinThemes,
+    // remove unnecessary .scss and /styles.css
+    mappings in (Compile,packageBin) ~= {
+      (ms: Seq[(File, String)]) => ms filter {
+        case (_, toPath) => !(toPath.endsWith(".scss") || toPath.startsWith("styles.css"))
+      }
+    },
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-reflect" % "2.11.6",
 
@@ -74,4 +85,4 @@ lazy val vs_backend = (project in file("vs-backend"))
   )
   .dependsOn(vs_shared)
 
-lazy val root = (project in file(".")).aggregate(vs_shared, vs_frontend, vs_backend)
+lazy val vs_root = (project in file(".")).aggregate(vs_shared, vs_frontend, vs_backend)
